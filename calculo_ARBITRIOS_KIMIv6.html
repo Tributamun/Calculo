@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Arbitrios 2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #1a1a2e;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #764ba2;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .input-section {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(252, 182, 159, 0.4);
+            border: 3px solid #ff9a9e;
+        }
+
+        .input-section h2 {
+            color: #d63031;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 3px solid #ff6b6b;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #2d3436;
+            font-size: 1.1em;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #fdcb6e;
+            border-radius: 10px;
+            font-size: 1.1em;
+            background: #fff;
+            transition: all 0.3s ease;
+            color: #2d3436;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #e17055;
+            box-shadow: 0 0 0 3px rgba(225, 112, 85, 0.2);
+            transform: scale(1.02);
+        }
+
+        .results-section {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(168, 237, 234, 0.4);
+            border: 3px solid #00b894;
+        }
+
+        .results-section h2 {
+            color: #00b894;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 3px solid #55efc4;
+            padding-bottom: 10px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            border-left: 5px solid;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .result-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .result-item.recojo { border-left-color: #e74c3c; background: linear-gradient(90deg, #ff7675 0%, #fab1a0 100%); }
+        .result-item.barrido { border-left-color: #3498db; background: linear-gradient(90deg, #74b9ff 0%, #a29bfe 100%); }
+        .result-item.parques { border-left-color: #2ecc71; background: linear-gradient(90deg, #55efc4 0%, #81ecec 100%); }
+        .result-item.serenazgo { border-left-color: #f39c12; background: linear-gradient(90deg, #ffeaa7 0%, #fdcb6e 100%); }
+        .result-item.total-mes { border-left-color: #9b59b6; background: linear-gradient(90deg, #a29bfe 0%, #fd79a8 100%); font-weight: bold; }
+        .result-item.total-anio { border-left-color: #1abc9c; background: linear-gradient(90deg, #00b894 0%, #00cec9 100%); font-weight: bold; font-size: 1.2em; }
+
+        .result-label {
+            font-weight: bold;
+            color: #2d3436;
+            font-size: 1.1em;
+        }
+
+        .result-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2d3436;
+            background: rgba(255,255,255,0.9);
+            padding: 8px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-family: 'Courier New', monospace;
+        }
+
+        .tables-section {
+            margin-top: 30px;
+        }
+
+        .tables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .table-container {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe0e6 100%);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 2px solid #ff6b6b;
+            overflow-x: auto;
+        }
+
+        .table-container:nth-child(2) {
+            background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+            border-color: #48bb78;
+        }
+
+        .table-container:nth-child(3) {
+            background: linear-gradient(135deg, #ebf8ff 0%, #bee3f8 100%);
+            border-color: #4299e1;
+        }
+
+        .table-container:nth-child(4) {
+            background: linear-gradient(135deg, #fffaf0 0%, #feebc8 100%);
+            border-color: #ed8936;
+        }
+
+        .table-container h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.9em;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #cbd5e0;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 0.5px;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(255,255,255,0.5);
+        }
+
+        tr:hover {
+            background-color: rgba(255,255,255,0.8);
+            transform: scale(1.02);
+            transition: all 0.2s ease;
+        }
+
+        .highlight-year {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+            color: #fff;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 87, 108, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(245, 87, 108, 0); }
+        }
+
+        .reference-table {
+            margin-top: 30px;
+            background: linear-gradient(135deg, #faf5ff 0%, #e9d8fd 100%);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #9f7aea;
+        }
+
+        .reference-table h3 {
+            color: #6b46c1;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .formula-box {
+            background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+            color: #dfe6e9;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            border-left: 5px solid #00cec9;
+        }
+
+        .formula-box h4 {
+            color: #00cec9;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tables-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+
+        .animate-value {
+            animation: countUp 0.5s ease-out;
+        }
+
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+		
+		
+		@media (max-width: 768px) {
+    .main-grid {
+        grid-template-columns: 1fr;
+    }
+		
+	@media print {
+    /* Ocultar estas secciones */
+    .tables-section,      /* 4 tablas de tarifas */	
+	.tables-grid
+	.tables-container
+		}
+		
+ /* ===== BOTÓN VOLVER AL MENÚ ===== */
+        .back-button {
+            position: fixed;
+            top: 25px;
+            left: 25px;
+            z-index: 1000;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .back-button:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .back-button:active {
+            transform: translateX(-2px) scale(0.98);
+        }
+
+        .back-button .icon {
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+        }
+
+        .back-button:hover .icon {
+            transform: translateX(-3px);
+        }
+
+        /* Responsive para móviles */
+        @media (max-width: 768px) {
+            .back-button {
+                top: 15px;
+                left: 15px;
+                padding: 10px 18px;
+                font-size: 0.85em;
+            }
+
+            .back-button .text {
+                display: none;
+            }
+
+            .back-button .icon {
+                font-size: 1.4em;
+            }
+        }
+		
+		
+		
+		
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="container">
+<!-- === BOTÓN REGRESAR AL MENÚ === -->
+    
+    <a href="index_municipal.html" class="back-button">
+        <span class="icon">←</span>
+        <span class="text">Menú Principal</span>
+    </a>    
+
+	   <h1>🏛️ Calculadora de Arbitrios Municipales 2026</h1>
+
+        <div class="main-grid">
+            <div class="input-section">
+                <h2>📋 Datos del Predio</h2>
+
+                <div class="form-group">
+                    <label for="anio">Año:</label>
+                    <select id="anio" onchange="calcularArbitrios()">
+                        <option value="2019">2019</option>
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026" selected>2026</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="areaConstruida">Área Construida (m²):</label>
+                    <input type="number" id="areaConstruida" value="548.16" step="0.01" onchange="calcularArbitrios()">
+                </div>
+
+                <div class="form-group">
+                    <label for="frontis">Frontis (ml):</label>
+                    <input type="number" id="frontis" value="6" step="0.01" onchange="calcularArbitrios()">
+                </div>
+
+                <div class="form-group">
+                    <label for="uso">Uso del Predio:</label>
+                    <select id="uso" onchange="calcularArbitrios()">
+                        <option value="Casa Habitación">Casa Habitación</option>
+                        <option value="Organización Sindical">Organización Sindical</option>
+                        <option value="Comunidad Campesina o Nativa">Comunidad Campesina o Nativa</option>
+                        <option value="Comercio">Comercio</option>
+                        <option value="Servicio en General">Servicio en General</option>
+                        <option value="Asistencia Gratuita">Asistencia Gratuita</option>
+                        <option value="Cultural">Cultural</option>
+                        <option value="Educacional">Educacional</option>
+                        <option value="Fundación o Asociación">Fundación o Asociación</option>
+                        <option value="Gobierno Central, Institución Publica De">Gobierno Central, Institución Pública</option>
+                        <option value="Gobierno Extranjero">Gobierno Extranjero</option>
+                        <option value="Museo">Museo</option>
+                        <option value="Templo, Convento, Monasterio">Templo, Convento, Monasterio</option>
+                        <option value="Comunidad Laboral o de Compesación">Comunidad Laboral o de Compensación</option>
+                        <option value="Industria">Industria</option>
+                        <option value="Otros">Otros</option>
+                        <option value="Agricola">Agrícola</option>
+                        <option value="Estacionamiento">Estacionamiento</option>
+                        <option value="Terreno sin Construir">Terreno sin Construir</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="ubicacion">Ubicación al área verde:</label>
+                    <select id="ubicacion" onchange="calcularArbitrios()">
+                        <option value="Frente a un area verde">Frente a un área verde</option>
+                        <option value="A una cuadra de una area verde">A una cuadra de un área verde</option>
+                        <option value="Fuera de una cuadra de un area verde" selected>Fuera de una cuadra de un área verde</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="habitantes">Habitantes:</label>
+                    <input type="number" id="habitantes" value="4" min="0" onchange="calcularArbitrios()">
+                </div>
+
+                <div class="form-group">
+                    <label for="habPromedio">Nro. Hab. Promedio:</label>
+                    <input type="number" id="habPromedio" value="5" min="1" onchange="calcularArbitrios()">
+                </div>
+            </div>
+
+            <div class="results-section">
+                <h2 id="tituloDeterminacion">📊 Determinación de Arbitrios 2026</h2>
+
+                <div class="result-item recojo">
+                    <span class="result-label">🗑️ Recojo de Residuos:</span>
+                    <span class="result-value" id="recojoResiduos">S/ 105.25</span>
+                </div>
+
+                <div class="result-item barrido">
+                    <span class="result-label">🧹 Barrido de Calles:</span>
+                    <span class="result-value" id="barridoCalles">S/ 11.88</span>
+                </div>
+
+                <div class="result-item parques">
+                    <span class="result-label">🌳 Parques y Jardines:</span>
+                    <span class="result-value" id="parquesJardines">S/ 2.03</span>
+                </div>
+
+                <div class="result-item serenazgo">
+                    <span class="result-label">👮 Serenazgo:</span>
+                    <span class="result-value" id="serenazgo">S/ 10.20</span>
+                </div>
+
+                <div class="result-item total-mes">
+                    <span class="result-label">💰 Arbitrio Mes:</span>
+                    <span class="result-value" id="arbitrioMes">S/ 129.36</span>
+                </div>
+
+                <div class="result-item total-anio">
+                    <span class="result-label">💵 Arbitrio Año:</span>
+                    <span class="result-value" id="arbitrioAnio">S/ 1,552.28</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="tables-section">
+            <div class="tables-grid">
+                <div class="table-container">
+                    <h3>🧹 Tasas Mensual Barrido de Calles</h3>
+                    <table id="tablaBarrido">
+                        <thead>
+                            <tr>
+                                <th>N° Orden</th>
+                                <th>Concepto</th>
+                                <th>2019</th>
+                                <th>2020</th>
+                                <th>2021</th>
+                                <th>2022</th>
+                                <th>2023</th>
+                                <th>2024</th>
+                                <th>2025</th>
+                                <th>2026</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Por metro Lineal</td>
+                                <td>0.22</td>
+                                <td>0.23</td>
+                                <td>0.24</td>
+                                <td>0.26</td>
+                                <td>0.29</td>
+                                <td>2.11</td>
+                                <td>1.96</td>
+                                <td>1.98</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-container">
+                    <h3>🗑️ Recojo de Residuos Sólidos</h3>
+                    <table id="tablaRecojo">
+                        <thead>
+                            <tr>
+                                <th>N° Orden</th>
+                                <th>Uso</th>
+                                <th>2019</th>
+                                <th>2020</th>
+                                <th>2021</th>
+                                <th>2022</th>
+                                <th>2023</th>
+                                <th>2024</th>
+                                <th>2025</th>
+                                <th>2026</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>Casa Habitación</td><td>0.13</td><td>0.14</td><td>0.15</td><td>0.16</td><td>0.18</td><td>0.28</td><td>0.23</td><td>0.24</td></tr>
+                            <tr><td>2</td><td>Comercio</td><td>0.14</td><td>0.15</td><td>0.16</td><td>0.19</td><td>0.21</td><td>0.29</td><td>0.27</td><td>0.28</td></tr>
+                            <tr><td>3</td><td>Entidad Pública</td><td>0.14</td><td>0.15</td><td>0.16</td><td>0.19</td><td>0.21</td><td>0.27</td><td>0.31</td><td>0.32</td></tr>
+                            <tr><td>4</td><td>Industria</td><td>0.28</td><td>0.29</td><td>0.31</td><td>0.37</td><td>0.41</td><td>1.37</td><td>0.27</td><td>0.28</td></tr>
+                            <tr><td>5</td><td>Terreno sin construir</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-container">
+                    <h3>🌳 Parques y Jardines</h3>
+                    <table id="tablaParques">
+                        <thead>
+                            <tr>
+                                <th>N° Orden</th>
+                                <th>Ubicación</th>
+                                <th>2019</th>
+                                <th>2020</th>
+                                <th>2021</th>
+                                <th>2022</th>
+                                <th>2023</th>
+                                <th>2024</th>
+                                <th>2025</th>
+                                <th>2026</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>Frente a un área verde</td><td>2.04</td><td>2.12</td><td>2.27</td><td>2.49</td><td>2.75</td><td>10.94</td><td>10.15</td><td>10.35</td></tr>
+                            <tr><td>2</td><td>A una cuadra de un área verde</td><td>1.22</td><td>1.27</td><td>1.36</td><td>1.49</td><td>1.65</td><td>4.96</td><td>4.85</td><td>4.95</td></tr>
+                            <tr><td>3</td><td>Fuera de una cuadra de un área verde</td><td>0.81</td><td>0.84</td><td>0.91</td><td>1.00</td><td>1.10</td><td>2.13</td><td>2.08</td><td>2.03</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-container">
+                    <h3>👮 Serenazgo</h3>
+                    <table id="tablaSerenazgo">
+                        <thead>
+                            <tr>
+                                <th>N° Orden</th>
+                                <th>Uso</th>
+                                <th>2019</th>
+                                <th>2020</th>
+                                <th>2021</th>
+                                <th>2022</th>
+                                <th>2023</th>
+                                <th>2024</th>
+                                <th>2025</th>
+                                <th>2026</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>Casa Habitación</td><td>4.87</td><td>5.07</td><td>5.43</td><td>5.97</td><td>6.57</td><td>16.27</td><td>10.10</td><td>10.20</td></tr>
+                            <tr><td>2</td><td>Comercio</td><td>10.39</td><td>10.81</td><td>11.60</td><td>13.92</td><td>15.31</td><td>133.77</td><td>85.58</td><td>87.28</td></tr>
+                            <tr><td>3</td><td>Entidad Pública</td><td>8.06</td><td>8.39</td><td>8.99</td><td>10.78</td><td>11.87</td><td>123.78</td><td>76.12</td><td>77.63</td></tr>
+                            <tr><td>4</td><td>Industria</td><td>20.24</td><td>21.07</td><td>22.59</td><td>27.10</td><td>29.82</td><td>88.55</td><td>85.58</td><td>87.28</td></tr>
+                            <tr><td>5</td><td>Terreno sin construir</td><td>5.34</td><td>5.55</td><td>5.95</td><td>7.14</td><td>7.85</td><td>16.27</td><td>10.10</td><td>10.30</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="reference-table">
+            <h3>📚 Tabla de Referencia: Uso de Predio Sistema vs Ordenanza</h3>
+            <table id="tablaReferencia">
+                <thead>
+                    <tr>
+                        <th>Nro</th>
+                        <th>Uso Predio Sistema</th>
+                        <th>Uso Ordenanza</th>
+                        <th>Nro Ordenanza</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td>Casa Habitación</td><td>Casa Habitación</td><td>1</td></tr>
+                    <tr><td>1</td><td>Organización Sindical</td><td>Casa Habitación</td><td>1</td></tr>
+                    <tr><td>1</td><td>Comunidad Campesina o Nativa</td><td>Casa Habitación</td><td>1</td></tr>
+                    <tr><td>2</td><td>Comercio</td><td>Comercio</td><td>2</td></tr>
+                    <tr><td>2</td><td>Servicio en General</td><td>Comercio</td><td>2</td></tr>
+                    <tr><td>3</td><td>Asistencia Gratuita</td><td>Entidad Pública</td><td>3</td></tr>
+                    <tr><td>3</td><td>Cultural</td><td>Entidad Pública</td><td>3</td></tr>
+                    <tr><td>3</td><td>Educacional</td><td>Entidad Pública</td><td>3</td></tr>
+                    <tr><td>3</td><td>Fundación o Asociación</td><td>Entidad Pública</td><td>3</td></tr>
+                    <tr><td>3</td><td>Gobierno Central, Institución Pública</td><td>Entidad Pública</td><td>3</td></tr>
+                    <tr><td>3</td><td>Gobierno Extranjero</td><td>Entidad Pública</td><td>3</td></tr>
+                    <tr><td>3</td><td>Museo</td><td>Entidad Pública</td><td>3</td></tr>
+                    <tr><td>3</td><td>Templo, Convento, Monasterio</td><td>Entidad Pública</td><td>3</td></tr>
+                    <tr><td>3</td><td>Comunidad Laboral o de Compensación</td><td>Entidad Pública</td><td>3</td></tr>
+                    <tr><td>4</td><td>Industria</td><td>Industria</td><td>4</td></tr>
+                    <tr><td>4</td><td>Otros</td><td>Industria</td><td>4</td></tr>
+                    <tr><td>5</td><td>Agrícola</td><td>Otros - Terreno</td><td>5</td></tr>
+                    <tr><td>5</td><td>Estacionamiento</td><td>Otros - Terreno</td><td>5</td></tr>
+                    <tr><td>5</td><td>Terreno sin Construir</td><td>Otros - Terreno</td><td>5</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="formula-box">
+            <h4>🔍 Fórmulas Utilizadas:</h4>
+            <p><strong>Recojo de Residuos:</strong> TasaRecojo(año) × ÁreaConstruida × (1 + (Habitantes - HabPromedio) × (1/HabPromedio))</p>
+            <p><strong>Barrido de Calles:</strong> TasaBarrido(año) × Frontis</p>
+            <p><strong>Parques y Jardines:</strong> Buscar en tabla según ubicación y año</p>
+            <p><strong>Serenazgo:</strong> Buscar en tabla según uso ordenanza y año</p>
+            <p><strong>Arbitrio Mes:</strong> Suma de los 4 conceptos anteriores</p>
+            <p><strong>Arbitrio Año:</strong> Arbitrio Mes × 12</p>
+        </div>
+    </div>
+
+    <script>
+        // Datos de las tablas (exactos del Excel)
+        const tasasBarrido = {
+            2019: 0.22, 2020: 0.23, 2021: 0.24, 2022: 0.26, 
+            2023: 0.29, 2024: 2.11, 2025: 1.96, 2026: 1.98
+        };
+
+        const tasasRecojo = {
+            'Casa Habitacion': {2019: 0.13, 2020: 0.14, 2021: 0.15, 2022: 0.16, 2023: 0.18, 2024: 0.28, 2025: 0.23, 2026: 0.24},
+            'Comercio': {2019: 0.14, 2020: 0.15, 2021: 0.16, 2022: 0.19, 2023: 0.21, 2024: 0.29, 2025: 0.27, 2026: 0.275373},
+            'Entidad Publica': {2019: 0.14, 2020: 0.15, 2021: 0.16, 2022: 0.19, 2023: 0.21, 2024: 0.27, 2025: 0.31, 2026: 0.316169},
+            'Industria': {2019: 0.28, 2020: 0.29, 2021: 0.31, 2022: 0.37, 2023: 0.41, 2024: 1.37, 2025: 0.27, 2026: 0.275373},
+            'Terreno sin construir': {2019: 0, 2020: 0, 2021: 0, 2022: 0, 2023: 0, 2024: 0, 2025: 0, 2026: 0}
+        };
+
+        const tasasParques = {
+            'Frente a un area verde': {2019: 2.04, 2020: 2.12, 2021: 2.27, 2022: 2.49, 2023: 2.75, 2024: 10.94, 2025: 10.15, 2026: 10.351985},
+            'A una cuadra de una area verde': {2019: 1.22, 2020: 1.27, 2021: 1.36, 2022: 1.49, 2023: 1.65, 2024: 4.96, 2025: 4.85, 2026: 4.946515},
+            'Fuera de una cuadra de un area verde': {2019: 0.81, 2020: 0.84, 2021: 0.91, 2022: 1.00, 2023: 1.10, 2024: 2.13, 2025: 2.08, 2026: 2.03}
+        };
+
+        const tasasSerenazgo = {
+            'Casa Habitacion': {2019: 4.87, 2020: 5.07, 2021: 5.43, 2022: 5.97, 2023: 6.57, 2024: 16.27, 2025: 10.1, 2026: 10.2},
+            'Comercio': {2019: 10.39, 2020: 10.81, 2021: 11.6, 2022: 13.92, 2023: 15.31, 2024: 133.77, 2025: 85.58, 2026: 87.283042},
+            'Entidad Publica': {2019: 8.06, 2020: 8.39, 2021: 8.99, 2022: 10.78, 2023: 11.87, 2024: 123.78, 2025: 76.12, 2026: 77.634788},
+            'Industria': {2019: 20.24, 2020: 21.07, 2021: 22.59, 2022: 27.1, 2023: 29.82, 2024: 88.55, 2025: 85.58, 2026: 87.283042},
+            'Terreno sin construir': {2019: 5.34, 2020: 5.55, 2021: 5.95, 2022: 7.14, 2023: 7.85, 2024: 16.27, 2025: 10.1, 2026: 10.30099}
+        };
+
+        // Mapeo de usos del sistema a usos de ordenanza
+        const mapeoUsos = {
+            'Casa Habitación': 'Casa Habitacion',
+            'Organización Sindical': 'Casa Habitacion',
+            'Comunidad Campesina o Nativa': 'Casa Habitacion',
+            'Comercio': 'Comercio',
+            'Servicio en General': 'Comercio',
+            'Asistencia Gratuita': 'Entidad Publica',
+            'Cultural': 'Entidad Publica',
+            'Educacional': 'Entidad Publica',
+            'Fundación o Asociación': 'Entidad Publica',
+            'Gobierno Central, Institución Publica De': 'Entidad Publica',
+            'Gobierno Extranjero': 'Entidad Publica',
+            'Museo': 'Entidad Publica',
+            'Templo, Convento, Monasterio': 'Entidad Publica',
+            'Comunidad Laboral o de Compesación': 'Entidad Publica',
+            'Industria': 'Industria',
+            'Otros': 'Industria',
+            'Agricola': 'Terreno sin construir',
+            'Estacionamiento': 'Terreno sin construir',
+            'Terreno sin Construir': 'Terreno sin construir'
+        };
+
+        function formatNumber(num) {
+            return num.toLocaleString('es-PE', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function calcularArbitrios() {
+            const anio = parseInt(document.getElementById('anio').value);
+            const areaConstruida = parseFloat(document.getElementById('areaConstruida').value) || 0;
+            const frontis = parseFloat(document.getElementById('frontis').value) || 0;
+            const uso = document.getElementById('uso').value;
+            const ubicacion = document.getElementById('ubicacion').value;
+            const habitantes = parseInt(document.getElementById('habitantes').value) || 0;
+            const habPromedio = parseInt(document.getElementById('habPromedio').value) || 1;
+
+            // Actualizar título
+            document.getElementById('tituloDeterminacion').textContent = `📊 Determinación de Arbitrios ${anio}`;
+
+            // Obtener uso de ordenanza
+            const usoOrdenanza = mapeoUsos[uso] || 'Casa Habitacion';
+
+            // Calcular Recojo de Residuos
+            // Fórmula: TasaRecojo(año) × ÁreaConstruida × (1 + (Habitantes - HabPromedio) × (1/HabPromedio))
+            const tasaRecojo = tasasRecojo[usoOrdenanza][anio];
+            const factorHabitantes = (1 + (habitantes - habPromedio) * (1 / habPromedio));
+            const recojoResiduos = tasaRecojo * areaConstruida * factorHabitantes;
+
+            // Calcular Barrido de Calles
+            // Fórmula: TasaBarrido(año) × Frontis
+            const tasaBarrido = tasasBarrido[anio];
+            const barridoCalles = tasaBarrido * frontis;
+
+            // Calcular Parques y Jardines
+            const parquesJardines = tasasParques[ubicacion][anio];
+
+            // Calcular Serenazgo
+            const serenazgo = tasasSerenazgo[usoOrdenanza][anio];
+
+            // Calcular totales
+            const arbitrioMes = recojoResiduos + barridoCalles + parquesJardines + serenazgo;
+            const arbitrioAnio = arbitrioMes * 12;
+
+            // Actualizar DOM con animación
+            actualizarValor('recojoResiduos', recojoResiduos);
+            actualizarValor('barridoCalles', barridoCalles);
+            actualizarValor('parquesJardines', parquesJardines);
+            actualizarValor('serenazgo', serenazgo);
+            actualizarValor('arbitrioMes', arbitrioMes);
+            actualizarValor('arbitrioAnio', arbitrioAnio);
+
+            // Resaltar año seleccionado en tablas
+            resaltarAño(anio);
+        }
+
+        function actualizarValor(id, valor) {
+            const elemento = document.getElementById(id);
+            elemento.classList.remove('animate-value');
+            void elemento.offsetWidth; // Trigger reflow
+            elemento.textContent = 'S/ ' + formatNumber(valor);
+            elemento.classList.add('animate-value');
+        }
+
+        function resaltarAño(anio) {
+            // Quitar clase highlight de todas las celdas
+            document.querySelectorAll('.highlight-year').forEach(el => {
+                el.classList.remove('highlight-year');
+            });
+
+            // Mapeo de años a índices de columna (2019=3, 2020=4, etc. basado en estructura de tabla)
+            const añoIndices = {2019: 2, 2020: 3, 2021: 4, 2022: 5, 2023: 6, 2024: 7, 2025: 8, 2026: 9};
+            const indice = añoIndices[anio];
+
+            // Resaltar en todas las tablas
+            const tablas = ['tablaBarrido', 'tablaRecojo', 'tablaParques', 'tablaSerenazgo'];
+            tablas.forEach(idTabla => {
+                const tabla = document.getElementById(idTabla);
+                if (tabla) {
+                    const filas = tabla.querySelectorAll('tbody tr');
+                    filas.forEach(fila => {
+                        const celdas = fila.querySelectorAll('td');
+                        if (celdas[indice]) {
+                            celdas[indice].classList.add('highlight-year');
+                        }
+                    });
+                }
+            });
+        }
+
+        // Inicializar cálculos al cargar
+        document.addEventListener('DOMContentLoaded', function() {
+            calcularArbitrios();
+        });
+    </script>
+</body>
+</html>
